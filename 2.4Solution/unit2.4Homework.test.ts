@@ -10,16 +10,6 @@ import {
 
 const chromedriver = require("chromedriver");
 
-
-/*"Builder" builds a new instance of chrome when used with chromedriver
-  allowing testers to work in a real time application environment
-"Capabilities" allows testers to use chrome capabilities with the browser instance 
-  created with builder 
-"By" allows the tester to access elements on the web page using the DOM or the document object
-"until" makes the automation wait until the element is found accounting for wait/load times
-"WebDriver" is what we use to access the DOM in order to complete tasks
-"WebElement is the same as WebDriver but element specific"
-"Key" or "Keys" is just the keys on a keyboard that allows for typing in inputs or hitting common keys" */
 const driver: WebDriver = new Builder()
     .withCapabilities(Capabilities.chrome())
     .build();
@@ -56,7 +46,7 @@ describe("Employee Manager 1.2", () => {
         */
         await driver.findElement(bernice).click();
         await driver.wait(
-            until.elementIsVisible(await driver.findElement(nameInput))
+            until.elementIsVisible(await driver.findElement(nameDisplay))
         );
         await driver.findElement(nameInput).clear();
         await driver.findElement(nameInput).sendKeys("Test Name");
@@ -75,8 +65,8 @@ describe("Employee Manager 1.2", () => {
             )
         );
         expect(
-            await (await driver.findElement(nameInput)).getAttribute("")
-        ).toBe("");
+            await (await driver.findElement(nameInput)).getAttribute("value")
+        ).toBe("Bernice Ortiz");
         });
 
         test("A canceled change doesn't persist", async () => {
@@ -93,8 +83,7 @@ describe("Employee Manager 1.2", () => {
             );
             await driver.findElement(nameInput).clear();
             await driver.findElement(nameInput).sendKeys("Test Name");
-            await driver.findElement(cancelButton).click(); 
-            // idk what to put for getAttribute - ask Mars! 
+            await driver.findElement(cancelButton).click();
             expect(
                 await (await driver.findElement(nameInput)).getAttribute("value")
             ).toBe("Phillip Weaver");
@@ -120,15 +109,14 @@ describe("Employee Manager 1.2", () => {
             await driver.findElement(phillip).click();
             await driver.wait(
                 until.elementTextContains(
-                await driver.findElement(bernice),
+                await driver.findElement(nameDisplay),
                 "Phillip"
                 )
             );
             await driver.findElement(bernice).click();
-            // so getAttribute needs to be "value"? what exactly is this below - ask Mars
             expect(
                 await (await driver.findElement(nameInput)).getAttribute("value")
-            ).toBe("Bernice Ortiz");
+            ).toBe("Test Name");
     });
 });
 
@@ -149,6 +137,7 @@ describe("Employee Manager 1.2", () => {
             await driver.findElement(nameInput).sendKeys(Key.SPACE, Key.BACK_SPACE);
             await driver.findElement(saveButton).click();
             await driver.wait(until.elementLocated(errorCard));
+            
             expect(await (await driver.findElement(errorCard)).getText()).toBe(
                 "The name field must be between 1 and 30 characters long."
             );
